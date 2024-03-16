@@ -1,0 +1,6 @@
+{
+    "workspace.library": [
+        "/usr/share/hilbish/emmyLuaDocs",
+        "/usr/local/share/hilbish/emmyLuaDocs"
+    ]
+}
