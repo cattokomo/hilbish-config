@@ -1,5 +1,8 @@
 package.path = package.path .. ";" .. fs.join(hilbish.userDir.config, "hilbish/.libs/?.lua")
 local warna = require("warna")
+local ufs = require("utils.fs")
+
+local f = warna.format
 
 local greeting = warna.apply("Welcome!", { "bright", "blue" })
 if hilbish.which("nerdfetch") then
@@ -32,6 +35,13 @@ end
 
 bait.catch("command.preexec", function(input)
   hilbish.history.add(input)
+end)
+
+bait.catch("cd", function(pwd)
+  local oldpwd = ufs.normalize(os.getenv("OLDPWD"))
+  pwd = ufs.normalize(hilbish.cwd())
+	print((f"%{underl}Changing directory from %s → %s"):format(oldpwd, pwd))
+  os.execute("eza --color --icons -F --hyperlink " .. pwd)
 end)
 
 require("plugins.zoxide")
