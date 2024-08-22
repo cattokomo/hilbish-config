@@ -3,7 +3,7 @@ local aliases = {
   ["ls"] = "eza --color --icons -F --hyperlink",
   ["L"] = "ls --git-ignore",
   ["tree"] = "ls -T",
-  ["T"] = "L -T"
+  ["T"] = "L -T",
 }
 
 for i, v in pairs(aliases) do
