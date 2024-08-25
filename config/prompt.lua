@@ -10,6 +10,7 @@ local palette = {
   parens = "5ccbf0",
   dir = "8ecae6",
   nix = "7ebae4",
+  git = "A6E0AC",
 }
 
 -- generate colored text
@@ -40,6 +41,46 @@ local function load_prompt()
   hilbish.prompt(prompt)
 end
 
+local function load_rprompt()
+  local git = require("utils.git")
+  hilbish.prompt(C("...", "git"), "right")
+  hilbish.goro(function()
+    ---@param num integer?
+    ---@param sym string
+    ---@param ws boolean?
+    ---@param explicit_num boolean?
+    ---@return string
+    local function format_info(num, sym, ws, explicit_num)
+      if num and num > 0 then
+        return (ws and " " or "") .. sym .. ((explicit_num or num > 1) and num or "")
+      end
+      return ""
+    end
+
+    local info = git.get_info(tostring(os.time()), hilbish.cwd())
+
+    if not info.is_git_repo then
+      return hilbish.prompt("", "right")
+    end
+
+    local prompt = table.concat({
+      info.branch_name or info.tag or info.commit_hash:sub(7),
+      format_info(info.commits_behind, "«", true, true),
+      format_info(info.commits_ahead, "»", true, true),
+      format_info(info.push_commits_behind, "«‹", true, true),
+      format_info(info.push_commits_ahead, "›»", true, true),
+      info.action and " " .. info.action or "",
+      format_info(info.stashes, "=", true),
+      format_info(info.conflicted_changes, "≠"),
+      format_info(info.staged_changes, "+"),
+      format_info(info.unstaged_changes, "!"),
+      format_info(info.untracked_files, "?"),
+    })
+
+    hilbish.prompt(C(prompt, "git"),"right")
+  end)
+end
+
 ---@type osdate?
 local before_exec_time, after_exec_time
 bait.catch("command.preexec", function()
@@ -47,20 +88,23 @@ bait.catch("command.preexec", function()
 end)
 
 bait.catch("command.exit", function()
-  after_exec_time = os.date("*t")
-  local sec, min, hour =
-    after_exec_time.sec - before_exec_time.sec,
-    after_exec_time.min - before_exec_time.min,
-    after_exec_time.hour - before_exec_time.hour
-  local elapsed = table.concat({
-    hour > 0 and hour .. "h " or "",
-    min > 0 and min .. "m " or "",
-    sec > 3 and sec .. "s " or "",
-  })
+  if before_exec_time then
+    after_exec_time = os.date("*t")
+    local sec, min, hour =
+        after_exec_time.sec - before_exec_time.sec,
+        after_exec_time.min - before_exec_time.min,
+        after_exec_time.hour - before_exec_time.hour
+    local elapsed = table.concat({
+      hour > 0 and hour .. "h " or "",
+      min > 0 and min .. "m " or "",
+      sec > 3 and sec .. "s " or "",
+    })
+  end
   state = {
-    elapsed = elapsed,
+    elapsed = elapsed or "",
   }
   load_prompt()
+  load_rprompt()
   before_exec_time, after_exec_time = nil, nil
 end)
 

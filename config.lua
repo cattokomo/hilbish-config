@@ -7,7 +7,12 @@ hilbish.opts = {
   notifyJobFinish = true,
 }
 
-hilbish.runnerMode("hybridRev")
+hilbish.runnerMode(function(input)
+  if input:match("^#lua") then
+  	return hilbish.runner.lua(input:sub(#"#lua"+1))
+  end
+  return hilbish.runner.sh(input)
+end)
 
 local warna = require("warna")
 local ufs = require("utils.fs")
