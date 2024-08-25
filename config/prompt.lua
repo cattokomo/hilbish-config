@@ -74,7 +74,7 @@ local function load_rprompt()
       format_info(info.conflicted_changes, "≠"),
       format_info(info.staged_changes, "+"),
       format_info(info.unstaged_changes, "!"),
-      format_info(info.untracked_files, "?"),
+      -- format_info(info.untracked_files, "?"), -- disable for now
     })
 
     hilbish.prompt(C(prompt, "git"),"right")
