@@ -64,7 +64,7 @@ local function load_rprompt()
     end
 
     local prompt = table.concat({
-      info.branch_name or info.tag or info.commit_hash:sub(7),
+      info.branch_name or info.tag or info.commit_hash:sub(1, 7),
       format_info(info.commits_behind, "«", true, true),
       format_info(info.commits_ahead, "»", true, true),
       format_info(info.push_commits_behind, "«‹", true, true),
@@ -109,4 +109,5 @@ bait.catch("command.exit", function()
 end)
 
 load_prompt()
+load_rprompt()
 hilbish.multiprompt(C(">>> ", "prompt"))
